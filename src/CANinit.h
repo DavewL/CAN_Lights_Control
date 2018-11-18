@@ -1,0 +1,2 @@
+
+void initCAN(void);

@@ -13,8 +13,10 @@
 /* ======================= includes ================================= */
 
 #include "Particle.h"
-#include "neopixel.h"
-#include "carloop.h"
+#include <neopixel.h>
+#include <carloop.h>
+#include "CANrec.h"
+#include "CANinit.h"
 
 /* ======================= prototypes =============================== */
 
@@ -30,42 +32,14 @@ SYSTEM_MODE(AUTOMATIC);
 
 // IMPORTANT: Set pixel COUNT, PIN and TYPE
 #define PIXEL_COUNT 32
-#define PIXEL_PIN D2
+#define PIXEL_PIN D3
 #define PIXEL_TYPE SK6812RGBW
-
-// Parameter 1 = number of pixels in strip
-//               note: for some stripes like those with the TM1829, you
-//                     need to count the number of segments, i.e. the
-//                     number of controllers in your stripe, not the number
-//                     of individual LEDs!
-// Parameter 2 = pin number (most are valid)
-//               note: if not specified, D2 is selected for you.
-// Parameter 3 = pixel type [ WS2812, WS2812B, WS2812B2, WS2813, WS2811,
-//                            TM1803, TM1829, SK6812RGBW, WS2812B_FAST,
-//                            WS2812B2_FAST ]
-//               note: if not specified, WS2812B is selected for you which
-//                     is the same as WS2812 or WS2813 in operation.
-//               note: RGB order is automatically applied to WS2811,
-//                     WS2812/WS2812B/WS2812B2/WS2813/TM1803 is GRB order.
-//               note: For legacy 50us reset pulse timing on WS2812/WS2812B
-//                     or WS2812B2, select WS2812B_FAST or WS2812B2_FAST
-//                     respectively.  Otherwise 300us timing will be used.
-//
-// 800 KHz bitstream 800 KHz bitstream (most NeoPixel products
-//               WS2812/WS2813 (6-pin part)/WS2812B (4-pin part)/SK6812RGBW (RGB+W) )
-//
-// 400 KHz bitstream (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//                   (Radio Shack Tri-Color LED Strip - TM1803 driver
-//                    NOTE: RS Tri-Color LED's are grouped in sets of 3)
 
 Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
 
-// IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
-// pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
-// and minimize distance between Arduino and first pixel.  Avoid connecting
-// on a live circuit...if you must, connect GND first.
-
 void setup() {
+  initCAN();
+
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }

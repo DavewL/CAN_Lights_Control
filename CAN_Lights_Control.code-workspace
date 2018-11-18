@@ -3,7 +3,11 @@
         "extensions.ignoreRecommendations": true,
         "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
         "files.associations": {
-            "*.ino": "cpp"
+            "*.ino": "cpp",
+            "array": "cpp",
+            "initializer_list": "cpp",
+            "xstring": "cpp",
+            "xutility": "cpp"
         },
         "particle.targetDevice": "CAN-LIGHTS-1",
         "particle.firmwareVersion": "0.7.0"
