@@ -14,6 +14,7 @@
 
 #include "Particle.h"
 #include "neopixel.h"
+#include "carloop.h"
 
 /* ======================= prototypes =============================== */
 
