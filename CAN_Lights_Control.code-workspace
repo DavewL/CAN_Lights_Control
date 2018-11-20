@@ -10,7 +10,7 @@
             "xutility": "cpp"
         },
         "particle.targetDevice": "CAN-LIGHTS-1",
-        "particle.firmwareVersion": "0.7.0"
+        "particle.firmwareVersion": "0.8.0-rc.11"
     },
     "folders": [
         {

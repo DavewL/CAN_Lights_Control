@@ -11,126 +11,117 @@
  *
  */
 /* ======================= includes ================================= */
-
 #include "Particle.h"
-#include <neopixel.h>
 #include <carloop.h>
 #include "CANrec.h"
 #include "CANinit.h"
+#include <PixelControl.h>
 
 /* ======================= prototypes =============================== */
+int changePattern(String pattern);
+int changeColor(String color);
+int changeDelay(String ms_delay);
 
-void colorAll(uint32_t c, uint8_t wait);
-void colorWipe(uint32_t c, uint8_t wait);
-void rainbow(uint8_t wait);
-void rainbowCycle(uint8_t wait);
-uint32_t Wheel(byte WheelPos);
+typedef enum
+{
+  CHASE,
+  BREATHE,
+  SOLID
+} FlashPatterns;
+
+typedef enum
+{
+  RED,
+  GREEN,
+  BLUE
+} Colors;
+
+FlashPatterns LED_Pattern;
+Colors LED_Color;
+int LED_delay = 20;
 
 /* ======================= extra-examples.cpp ======================== */
-
 SYSTEM_MODE(AUTOMATIC);
 
-// IMPORTANT: Set pixel COUNT, PIN and TYPE
-#define PIXEL_COUNT 32
-#define PIXEL_PIN D3
-#define PIXEL_TYPE SK6812RGBW
-
-Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
-
 void setup() {
+  Particle.function("pattern", changePattern);
+  Particle.function("color", changeColor);
+  Particle.function("delay", changeDelay);
   initCAN();
-
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
+  initPixel();
 }
 
 void loop() {
- if (false){
-  chase(0,255,0,20);
- }
- if (true){
-   breathe(0,0,100,10);
- }
+  int red_val;
+  int green_val;
+  int blue_val;
 
+  if (LED_Color == RED){
+    red_val = 255;
+    green_val = 0;
+    blue_val = 0;
+  }
+  if (LED_Color == GREEN){
+    red_val = 0;
+    green_val = 255;
+    blue_val = 0;
+  }
+  if (LED_Color == BLUE){
+    red_val = 0;
+    green_val = 0;
+    blue_val = 255;
+  }
+
+  if (LED_Pattern == CHASE){
+    chase(red_val,green_val,blue_val,LED_delay);
+  }
+  else if (LED_Pattern == BREATHE){
+    breathe(red_val,green_val,blue_val,LED_delay);
+  }
+  else if (LED_Pattern == SOLID){
+    solid(red_val,green_val,blue_val);
+    delay(50);
+ }
 }
 
-void breathe (int r, int g, int b, int delay_time){
-  static int i = 1;
-  static bool up_down = 0;
-  int new_r = 0;
-  int new_g = 0;
-  int new_b = 0;
-
-  int max_i = 0;
-  if ((r >= g) && (r >= b)){
-    max_i = r;
+int changePattern(String pattern){
+  if (pattern == "breathe") {
+    LED_Pattern = BREATHE;
+    return 1;
   }
-  else if ((g >= r) && (g >= b)) {
-    max_i = g;
+  else if (pattern == "chase"){
+    LED_Pattern = CHASE;
+    return 1;
   }
-  else{
-    max_i = b;
+  else if (pattern == "solid"){
+    LED_Pattern = SOLID;
+    return 1;
   }
-
-  if ((i <= max_i) && (i > 0)){
-    if (up_down == 0){
-      i++;
-    }
-    else {
-      i--;
-    }
-
-    if (r >= i){
-      new_r = r - i;
-    }
-    if (g >= i){
-      new_g = g - i;
-    }
-    if (b >= i){
-      new_b = b - i;
-    }
-    //Serial.printlnf("%d, %d, %d", new_r, new_g, new_b);
-
-    for (int j = 0; j < strip.numPixels(); j++){
-      strip.setPixelColor(j, strip.Color(new_g, new_r, new_b));  //(g, r, b)
-    }
-    delay(delay_time);
-    strip.show();
+  else { 
+    return -1;
   }
-  else {
-    up_down = !up_down;
-    if (i > max_i){
-      i = max_i - 1;
-    }
-    else{
-      i = 1;
-    }
+  
+}
+
+int changeColor(String color){
+  if (color == "red") {
+    LED_Color = RED;
+      return 1;
+  }
+  else if (color == "green"){
+    LED_Color = GREEN;
+    return 1;
+}
+  else if (color == "blue"){
+    LED_Color = BLUE;
+    return 1;
+}
+  else { 
+  return -1;
   }
 }
 
-void chase (int r, int g, int b, int delay_time){
-  static int i = 0;
-  static int on_off = 0;
-
-  if (i < strip.numPixels()){
-    if (on_off == 0) {
-      strip.setPixelColor(i, strip.Color(g, r, b));  //(g, r, b)
-      i++;
-    }
-    else{
-      strip.setPixelColor(i, strip.Color(0, 0, 0));
-      i++;
-    }
-    delay(delay_time);
-  }
-  else {
-      if (on_off == 0){
-        on_off = 1;
-      }
-      else{
-        on_off = 0;
-      }
-    i = 0;
-  } 
-  strip.show();
+int changeDelay(String ms_delay){
+    LED_delay = ms_delay.toInt();
+    return 1;
 }
